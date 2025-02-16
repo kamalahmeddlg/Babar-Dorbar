@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Resume Builder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .form-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-section h3 {
+            color: #444;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .form-section input, .form-section textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-section input:focus, .form-section textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #007bff, #4b90ff);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #4b90ff, #007bff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .resume-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+            overflow: hidden;
+        }
+
+        .resume-preview h3 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            .form-section, .resume-preview {
+                padding: 15px;
+            }
+
+            .btn {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>BD Resume Builder</h2>
+
+    <div class="form-section">
+        <h3>Personal Information</h3>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="text" id="email" placeholder="Email">
+        <input type="text" id="phone" placeholder="Phone Number">
+        <textarea id="summary" placeholder="Summary (short description about you)" rows="4"></textarea>
+    </div>
+
+    <div class="form-section">
+        <h3>Education</h3>
+        <textarea id="education" placeholder="Education Details (e.g., Degree, University, Year)" rows="4"></textarea>
+    </div>
+
+    <div class="form-section">
+        <h3>Work Experience</h3>
+        <textarea id="experience" placeholder="Work Experience (e.g., Job Title, Company, Duration, Responsibilities)" rows="4"></textarea>
+    </div>
+
+    <div class="form-section">
+        <h3>Projects</h3>
+        <textarea id="projects" placeholder="Project Details (e.g., Project Name, Description, Technology Used)" rows="4"></textarea>
+    </div>
+
+    <div class="form-section">
+        <h3>Hobbies & Languages</h3>
+        <textarea id="hobbies" placeholder="Hobbies (e.g., Reading, Traveling, Gaming)" rows="2"></textarea>
+        <textarea id="languages" placeholder="Languages (e.g., English, Spanish, French)" rows="2"></textarea>
+    </div>
+
+    <button class="btn" onclick="generateResume()">Generate Resume</button>
+
+    <div class="resume-preview" id="resumePreview" style="display:none;">
+        <h3 id="resumeName"></h3>
+        <p><strong>Email:</strong> <span id="resumeEmail"></span></p>
+        <p><strong>Phone:</strong> <span id="resumePhone"></span></p>
+        <p><strong>Summary:</strong></p>
+        <p id="resumeSummary"></p>
+
+        <div class="section">
+            <h3>Education</h3>
+            <p id="resumeEducation"></p>
+        </div>
+
+        <div class="section">
+            <h3>Work Experience</h3>
+            <p id="resumeExperience"></p>
+        </div>
+
+        <div class="section">
+            <h3>Projects</h3>
+            <p id="resumeProjects"></p>
+        </div>
+
+        <div class="section">
+            <h3>Hobbies & Languages</h3>
+            <p><strong>Hobbies:</strong> <span id="resumeHobbies"></span></p>
+            <p><strong>Languages:</strong> <span id="resumeLanguages"></span></p>
+        </div>
+
+        <button class="btn" onclick="downloadResume()">Download PDF</button>
+    </div>
+
+    <script>
+        function generateResume() {
+            document.getElementById('resumeName').innerText = document.getElementById('name').value;
+            document.getElementById('resumeEmail').innerText = document.getElementById('email').value;
+            document.getElementById('resumePhone').innerText = document.getElementById('phone').value;
+            document.getElementById('resumeSummary').innerText = document.getElementById('summary').value;
+            document.getElementById('resumeEducation').innerText = document.getElementById('education').value;
+            document.getElementById('resumeExperience').innerText = document.getElementById('experience').value;
+            document.getElementById('resumeProjects').innerText = document.getElementById('projects').value;
+            document.getElementById('resumeHobbies').innerText = document.getElementById('hobbies').value;
+            document.getElementById('resumeLanguages').innerText = document.getElementById('languages').value;
+
+            document.getElementById('resumePreview').style.display = 'block';
+        }
+
+        function downloadResume() {
+            const resume = document.getElementById('resumePreview');
+            html2canvas(resume).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('Stylish_Resume.pdf');
+            });
+        }
+    </script>
+
+</body>
+</html>

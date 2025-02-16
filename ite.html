@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Text Extractor</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f3f4f6;
+      color: #333;
+      padding: 20px;
+    }
+    .tool-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    .tool-card h3 {
+      font-size: 1.8rem;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+    .tool-card p {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: linear-gradient(to right, #007bff, #4b90ff);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(to right, #4b90ff, #007bff);
+    }
+    #output {
+      margin-top: 20px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      min-height: 100px;
+      text-align: left;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+    }
+    #imagePreview {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tool-card">
+    <h3>Image Text Extractor</h3>
+    <p>Extract text from images using OCR technology</p>
+    <input type="file" id="imageInput" accept="image/*" class="btn">
+    <button id="downloadBtn" class="btn" style="display:none; margin-top: 10px;">Download Extracted Text</button>
+    <div id="output">Extracted text will appear here...</div>
+    <img id="imagePreview" src="" alt="Image Preview" style="display:none;">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const output = document.getElementById('output');
+    const imagePreview = document.getElementById('imagePreview');
+    const downloadBtn = document.getElementById('downloadBtn');
+    let extractedText = '';
+
+    imageInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        output.textContent = "Processing image, please wait...";
+        extractedText = '';
+
+        try {
+          const result = await Tesseract.recognize(file, 'eng', {
+            logger: m => console.log(m)
+          });
+          extractedText = result.data.text.trim() || "No text detected.";
+          output.textContent = extractedText;
+          downloadBtn.style.display = 'inline-block';
+        } catch (error) {
+          output.textContent = "An error occurred while extracting text.";
+          console.error(error);
+        }
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([extractedText], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'extracted-text.txt';
+      link.click();
+    });
+  </script>
+
+</body>
+</html>

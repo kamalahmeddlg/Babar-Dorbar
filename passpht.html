@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passport Size Photo Generator</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: scale(1.03);
+    }
+
+    h1 {
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    #preview {
+      max-width: 100%;
+      max-height: 400px;
+      margin-bottom: 20px;
+      display: none;
+      border: 3px dashed #3498db;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      transform: translateY(-3px);
+    }
+
+    footer {
+      margin-top: 20px;
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Passport Size Photo Generator</h1>
+    <p>Upload your photo to crop and download a passport-size version.</p>
+    <input type="file" id="upload" accept="image/*" class="btn">
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="preview" alt="Preview">
+    <br>
+    <button id="crop" class="btn" style="display:none;">Crop to Passport Size</button>
+    <button id="download" class="btn" style="display:none;">Download Photo</button>
+  </div>
+
+  <footer>
+    <p>&copy;2025 BabarDorbar Passport Photo Generator</p>
+  </footer>
+
+  <script>
+    let uploadedImage;
+    const uploadInput = document.getElementById('upload');
+    const previewImage = document.getElementById('preview');
+    const canvas = document.getElementById('canvas');
+    const cropButton = document.getElementById('crop');
+    const downloadButton = document.getElementById('download');
+
+    uploadInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          uploadedImage = new Image();
+          uploadedImage.src = e.target.result;
+          uploadedImage.onload = () => {
+            previewImage.src = uploadedImage.src;
+            previewImage.style.display = 'block';
+            cropButton.style.display = 'inline-block';
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    cropButton.addEventListener('click', () => {
+      const ctx = canvas.getContext('2d');
+      const width = 413; // Passport photo width in pixels
+      const height = 531; // Passport photo height in pixels
+      canvas.width = width;
+      canvas.height = height;
+
+      // Calculate crop area and draw cropped image on canvas
+      const scaleWidth = uploadedImage.width / canvas.width;
+      const scaleHeight = uploadedImage.height / canvas.height;
+      const scale = Math.min(scaleWidth, scaleHeight);
+      const cropWidth = canvas.width * scale;
+      const cropHeight = canvas.height * scale;
+      const cropX = (uploadedImage.width - cropWidth) / 2;
+      const cropY = (uploadedImage.height - cropHeight) / 2;
+
+      ctx.drawImage(
+        uploadedImage,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        width,
+        height
+      );
+
+      previewImage.src = canvas.toDataURL('image/jpeg');
+      downloadButton.style.display = 'inline-block';
+    });
+
+    downloadButton.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'passport_photo.jpg';
+      link.href = canvas.toDataURL('image/jpeg');
+      link.click();
+    });
+  </script>
+
+</body>
+</html>

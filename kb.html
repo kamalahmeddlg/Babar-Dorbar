@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image KB/MB Compressor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Image KB or MB Compressor</h1>
+  <p>Select an image and set the target size in KB or MB.</p>
+  <input type="file" id="imageInput" accept="image/jpeg, image/png">
+  <input type="number" id="targetSize" placeholder="Target size in KB">
+  <button class="button" onclick="compressImage()">Compress Image</button>
+  <p id="status"></p>
+  <img id="compressedImage" style="display: none;">
+  <a id="downloadLink" class="button" style="display: none;">Download Compressed Image</a>
+</div>
+
+<script>
+  async function compressImage() {
+    const fileInput = document.getElementById('imageInput');
+    const targetSize = parseInt(document.getElementById('targetSize').value) * 1024; // Convert KB to bytes
+    const status = document.getElementById('status');
+    const compressedImage = document.getElementById('compressedImage');
+    const downloadLink = document.getElementById('downloadLink');
+
+    if (!fileInput.files.length || isNaN(targetSize)) {
+      alert('Please select an image and enter a valid target size in KB.');
+      return;
+    }
+
+    const file = fileInput.files[0];
+    let imgData = await readFileAsDataURL(file);
+    let quality = 0.9;
+    let compressedDataUrl = imgData;
+
+    while (quality > 0.1) {
+      compressedDataUrl = await compressToQuality(imgData, quality);
+      const compressedSize = Math.ceil((compressedDataUrl.length * 3) / 4); // Convert base64 size to bytes
+
+      if (compressedSize <= targetSize) {
+        status.textContent = `Compression successful! Final size: ${(compressedSize / 1024).toFixed(2)} KB.`;
+        
+        // Show compressed image
+        compressedImage.src = compressedDataUrl;
+        compressedImage.style.display = 'block';
+
+        // Prepare download link
+        downloadLink.href = compressedDataUrl;
+        downloadLink.download = 'compressed-image.jpg';
+        downloadLink.style.display = 'inline-block';
+        
+        return;
+      }
+      
+      quality -= 0.1; // Reduce quality and retry
+    }
+
+    status.textContent = 'Could not compress to the desired size. Try a larger target size.';
+  }
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function compressToQuality(imgData, quality) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.src = imgData;
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.drawImage(image, 0, 0, image.width, image.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    });
+  }
+</script>
+
+</body>
+</html>

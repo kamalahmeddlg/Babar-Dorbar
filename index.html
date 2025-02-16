@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="O95FkAlpm4busOGwu0Ht6Ye9vk-jvtdwQSun2iycBwM" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9874014386474302"
+     crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Babar Dorbar - Digital Toolbox</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #4f46e5;
+      --accent: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20;
+      z-index: 1000;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+    }
+
+    .search-container {
+      max-width: 600px;
+      margin: 1.5rem auto;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--accent);
+    }
+
+    .nav-container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem;
+      border-radius: 50px;
+      margin-top: 1rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    .tool-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      transition: 0.5s;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+
+    .tool-card:hover::before {
+      animation: shine 1.5s;
+    }
+
+    .tool-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .tool-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+
+    .tool-card p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+
+    @keyframes shine {
+      0% { left: -50%; }
+      100% { left: 150%; }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .nav-container {
+        border-radius: 20px;
+      }
+
+      .tool-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Babar Dorbar</h1>
+      <p>Your Ultimate Digital Toolbox</p>
+      <div class="nav-container">
+        <nav>
+          <a href="#home"><i class="fas fa-home"></i> Home</a>
+          <a href="#tools"><i class="fas fa-tools"></i> Tools</a>
+          <a href="#about"><i class="fas fa-info-circle"></i> About</a>
+          <a href="#contact"><i class="fas fa-envelope"></i> Contact</a>
+        </nav>
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="🔍 Search tools..." id="search-input">
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="tools-grid" id="tools-grid">
+      <!-- Tool Cards -->
+      <div class="tool-card" data-name="Passport Photo">
+        <i class="fas fa-id-card tool-icon"></i>
+        <h3>Passport Photo</h3>
+        <p>Create government-compliant photos for official documents</p>
+        <a href="passpht.html" class="btn">Get Started <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3>Image Compressor</h3>
+        <p>Optimize images without quality loss</p>
+        <a href="imgc.html" class="btn">Compress Now <i class="fas fa-compress"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-solid fa-money-bill-transfer"></i>
+        <h3>File Format Converter</h3>
+        <p>Changes the file from one format to another: PNG, JPG, GIF, PPTX, DOCX, TXT.</p>
+        <a href="fc.html" class="btn">Upload File<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-regular fa-file"></i>
+        <h3>Convert JPG to PDF</h3>
+        <p>JPG fileSelect one or mores, and they will be converted to a PDF.</p>
+        <a href="jpg2pdf.html" class="btn">Upload File<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-regular fa-file"></i>
+        <h3>Convert PDF to JPG</h3>
+        <p>Convert PDF file to JPG Format</p>
+        <a href="pdf2jpg.html" class="btn">Upload File<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3>KB Compressor</h3>
+        <p>Select an image and set the target size in KB or MB.</p>
+        <a href="kb.html" class="btn">Upload Image<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-regular fa-file"></i>
+        <h3>PDF KB Compressor</h3>
+        <p>Select an PDF and set the target size in KB or MB.</p>
+        <a href="kbpdf.html" class="btn">Upload File<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <h3>Edit Photo</h3>
+        <p>Add text, crop, and more.</p>
+        <a href="editpht.html" class="btn">Upload Photo<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div>
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-solid fa-calculator"></i>
+        <h3>Age Calculator</h3>
+        <p>Calculate a person's age based on their date of birth.</p>
+        <a href="agecls.html" class="btn">Calculate Now<i class="fa-solid fa-calculator"></i></a>
+      </div>  
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-solid fa-calculator"></i>
+        <h3>EMI Calculator</h3>
+        <p>It's helps you determine the monthly payment for a loan.</p>
+        <a href="emi.html" class="btn">Calculate Now<i class="fa-solid fa-calculator"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-regular fa-file"></i>
+        <h3>AI PPT Maker Tools</h3>
+        <p>Create PowerPoint presentations automatically.</p>
+        <a href="pptmk.html" class="btn"> Create PPT<i class="fa-solid fa-plus"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-regular fa-file"></i>
+        <h3>File Renamer</h3>
+        <p>Changes the name of multiple Files in once.</p>
+        <a href="filerenm.html" class="btn">Upload File<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3>AI Resume Builder</h3>
+        <p>Create professional resumes powered by AI</p>
+        <a href="resume_form.html" class="btn">Get Started<i class="fa-brands fa-get-pocket"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3>Image Text Extractor</h3>
+        <p>Extract text from images using OCR technology</p>
+        <a href="ite.html" class="btn">Upload Image<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fa-solid fa-microphone-lines"></i>
+        <h3>Voice-to-Text</h3>
+        <p>Convert speech to text in real-time</p>
+        <a href="v2t.html" class="btn">startRecording<i class="fa-solid fa-microphone-lines"></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3>Image Watermarking Tools</h3>
+        <p>Text,Logo,Invisible Watermarking</p>
+        <a href="iwt.html" class="btn">Upload Image<i class="fa-solid fa-cloud-arrow-up"></i></a>
+      </div> 
+
+      <!-- <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3></h3>
+        <p></p>
+        <a href=".html" class="btn"><i class=""></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3></h3>
+        <p></p>
+        <a href=".html" class="btn"><i class=""></i></a>
+      </div> 
+
+      <div class="tool-card" data-name="Image Compressor">
+        <i class="fas fa-file-image tool-icon"></i>
+        <h3></h3>
+        <p></p>
+        <a href=".html" class="btn"><i class=""></i></a>
+      </div>  -->
+
+      <!-- Add other tool cards with similar structure -->
+      <!-- Remember to add appropriate icons and data-name attributes -->
+      
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Babar Dorbar. All rights reserved.</p>
+    <div class="social-links" style="margin-top: 1rem;">
+      <a href="#" class="btn" style="background: #333;"><i class="fab fa-github"></i></a>
+      <a href="https://www.facebook.com/share/1BBCNaFeLW/" class="btn" style="background: #4267B2;"><i class="fab fa-facebook"></i></a>
+      <a href="#" class="btn" style="background: #1DA1F2;"><i class="fab fa-twitter"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    // Enhanced Search Functionality
+    const searchInput = document.getElementById('search-input');
+    const toolCards = document.querySelectorAll('.tool-card');
+
+    const searchTools = (term) => {
+      const searchTerm = term.toLowerCase();
+      toolCards.forEach(card => {
+        const textContent = card.textContent.toLowerCase();
+        card.style.display = textContent.includes(searchTerm) ? 'block' : 'none';
+      });
+    };
+
+    // Add debounce to search input
+    let timeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => searchTools(e.target.value), 300);
+    });
+
+    // Add smooth scroll
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        document.querySelector(href).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>

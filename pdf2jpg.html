@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to JPG Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    #pdfCanvas {
+      display: none;
+    }
+    #output img {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    .download-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .download-link:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>PDF to JPG Converter</h1>
+  <p>Select a PDF file, and the first page will be converted to a JPG image.</p>
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <button class="button" onclick="convertPdfToJpg()">Convert to JPG</button>
+  <canvas id="pdfCanvas"></canvas>
+  <div id="output"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+<script>
+  async function convertPdfToJpg() {
+    const fileInput = document.getElementById('pdfInput');
+    const output = document.getElementById('output');
+    const canvas = document.getElementById('pdfCanvas');
+    output.innerHTML = '';
+
+    if (fileInput.files.length === 0) {
+      alert('Please select a PDF file.');
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(file);
+    fileReader.onload = async function() {
+      const pdfData = new Uint8Array(fileReader.result);
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      const page = await pdf.getPage(1); // Convert the first page only
+      const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for better quality
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+
+      await page.render(renderContext).promise;
+
+      // Convert canvas to JPG image
+      const imgData = canvas.toDataURL('image/jpeg');
+      const imgElement = document.createElement('img');
+      imgElement.src = imgData;
+      output.appendChild(imgElement);
+
+      // Create a download link for the image
+      const downloadLink = document.createElement('a');
+      downloadLink.href = imgData;
+      downloadLink.download = 'converted.jpg';
+      downloadLink.className = 'download-link';
+      downloadLink.textContent = 'Download JPG Image';
+      output.appendChild(downloadLink);
+    };
+  }
+</script>
+
+</body>
+</html>

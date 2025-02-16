@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced EMI Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+            color: white;
+        }
+
+        .calculator h2 {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+        }
+
+        .btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #e64a19;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        canvas {
+            margin-top: 20px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <h2>EMI Calculator</h2>
+        <input type="number" id="loanAmount" placeholder="Loan Amount (₹)">
+        <input type="number" id="interestRate" placeholder="Annual Interest Rate (%)">
+        <input type="number" id="loanTenure" placeholder="Tenure (Months)">
+        <button class="btn" onclick="calculateEMI()">Calculate EMI</button>
+        <p class="result" id="emi-result"></p>
+        <canvas id="emiChart"></canvas>
+    </div>
+
+    <script>
+        let emiChart; 
+
+        function calculateEMI() {
+            let loanAmount = document.getElementById('loanAmount').value;
+            let interestRate = document.getElementById('interestRate').value;
+            let loanTenure = document.getElementById('loanTenure').value;
+
+            if (loanAmount === '' || interestRate === '' || loanTenure === '') {
+                document.getElementById('emi-result').innerText = "Please enter all values!";
+                return;
+            }
+
+            let P = parseFloat(loanAmount);
+            let R = parseFloat(interestRate) / 12 / 100; // Monthly Interest Rate
+            let N = parseInt(loanTenure);
+
+            let EMI = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1);
+            EMI = EMI.toFixed(2);
+
+            let totalPayment = (EMI * N).toFixed(2);
+            let totalInterest = (totalPayment - P).toFixed(2);
+
+            document.getElementById('emi-result').innerText = `Your EMI: ₹${EMI}
+            \nTotal Payment: ₹${totalPayment} (Principal: ₹${P}, Interest: ₹${totalInterest})`;
+
+            renderChart(P, totalInterest);
+        }
+
+        function renderChart(principal, interest) {
+            let ctx = document.getElementById('emiChart').getContext('2d');
+
+            if (emiChart) emiChart.destroy(); // Clear previous chart
+
+            emiChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Principal', 'Interest'],
+                    datasets: [{
+                        data: [principal, interest],
+                        backgroundColor: ['#4caf50', '#ff9800']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

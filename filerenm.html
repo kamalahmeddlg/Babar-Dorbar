@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Renamer & Downloader</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .tool-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .tool-card p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #007bff, #4b90ff);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #4b90ff, #007bff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .file-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .file-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item input {
+            width: 65%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .rename-btn {
+            background: #28a745;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .rename-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>File Renamer & Downloader</h2>
+
+    <div class="tool-card">
+        <h3>BD File Renamer</h3>
+        <p>Upload files, rename them, and download with new names.</p>
+        <input type="file" id="fileInput" multiple>
+        <div id="fileList" class="file-list"></div>
+        <button class="btn" onclick="downloadAll()">Download All Files</button>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        let files = [];
+
+        fileInput.addEventListener('change', () => {
+            fileList.innerHTML = '';
+            files = Array.from(fileInput.files);
+
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.classList.add('file-item');
+                fileItem.innerHTML = `
+                    <input type="text" id="file-${index}" value="${file.name}" />
+                    <button class="rename-btn" onclick="downloadFile(${index})">Download</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        function downloadFile(index) {
+            const newName = document.getElementById(`file-${index}`).value;
+            const file = files[index];
+            const url = URL.createObjectURL(file);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = newName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url); // Clean up the URL object
+        }
+
+        function downloadAll() {
+            files.forEach((file, index) => {
+                setTimeout(() => downloadFile(index), index * 500); // Delay to ensure all downloads work
+            });
+        }
+    </script>
+
+</body>
+</html>

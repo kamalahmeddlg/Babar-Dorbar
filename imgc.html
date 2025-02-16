@@ -1,0 +1,340 @@
+<div class="tool-card">
+  <h3>Image Compressor</h3>
+  <p>Reduces image file size with dimension control</p>
+  
+  <div class="compressor-interface">
+    <input type="file" id="compressInput" accept="image/*" hidden>
+    <label for="compressInput" class="upload-btn">Choose Image</label>
+    
+    <div class="controls">
+      <div class="dimension-control">
+        <div class="input-group">
+          <label>Width:</label>
+          <input type="number" id="widthInput" min="1" step="1">
+        </div>
+        <div class="input-group">
+          <label>Height:</label>
+          <input type="number" id="heightInput" min="1" step="1">
+        </div>
+        <button id="resetDimensions" class="reset-btn">Reset</button>
+      </div>
+      
+      <div class="quality-control">
+        <label>Quality:</label>
+        <input type="range" id="qualityRange" min="0" max="1" step="0.1" value="0.8">
+        <span id="qualityValue">80%</span>
+      </div>
+    </div>
+
+    <div class="image-preview">
+      <div class="image-container original">
+        <p>Original Image <span id="originalSize"></span></p>
+        <div class="image-wrapper">
+          <img id="originalImage" alt="Original preview">
+        </div>
+      </div>
+      
+      <div class="image-container compressed">
+        <p>Compressed Image <span id="compressedSize"></span></p>
+        <div class="image-wrapper">
+          <img id="compressedImage" alt="Compressed preview">
+        </div>
+      </div>
+    </div>
+
+    <button class="download-btn" id="downloadBtn" disabled>Download Compressed</button>
+  </div>
+</div>
+
+<style>
+.tool-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+.upload-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.upload-btn:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.controls {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.dimension-control {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-group input {
+  width: 100px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.quality-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#qualityRange {
+  flex-grow: 1;
+}
+
+.image-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.image-container {
+  border: 2px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.image-container p {
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+  color: #333;
+}
+
+.image-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.image-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.download-btn {
+  display: block;
+  width: 100%;
+  padding: 15px 30px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1em;
+}
+
+.download-btn:hover {
+  background: #1976D2;
+  transform: translateY(-2px);
+}
+
+.download-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.reset-btn {
+  padding: 8px 16px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.reset-btn:hover {
+  background: #555;
+}
+
+@media (max-width: 768px) {
+  .tool-card {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .dimension-control {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .image-preview {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
+
+<script>
+const compressInput = document.getElementById('compressInput');
+const qualityRange = document.getElementById('qualityRange');
+const qualityValue = document.getElementById('qualityValue');
+const downloadBtn = document.getElementById('downloadBtn');
+const widthInput = document.getElementById('widthInput');
+const heightInput = document.getElementById('heightInput');
+const resetBtn = document.getElementById('resetDimensions');
+
+let originalImage = null;
+let compressedBlob = null;
+let originalWidth = 0;
+let originalHeight = 0;
+let aspectRatio = 0;
+
+// Initialize event listeners
+qualityRange.addEventListener('input', updateQualityValue);
+compressInput.addEventListener('change', handleImageUpload);
+downloadBtn.addEventListener('click', downloadCompressed);
+widthInput.addEventListener('change', updateDimensions);
+heightInput.addEventListener('change', updateDimensions);
+resetBtn.addEventListener('click', resetToOriginalDimensions);
+
+function updateQualityValue(e) {
+  qualityValue.textContent = `${Math.round(e.target.value * 100)}%`;
+}
+
+async function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Load original image
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  
+  img.onload = () => {
+    originalWidth = img.naturalWidth;
+    originalHeight = img.naturalHeight;
+    aspectRatio = originalWidth / originalHeight;
+    
+    // Set initial dimensions
+    widthInput.value = originalWidth;
+    heightInput.value = originalHeight;
+    
+    // Show original image
+    document.getElementById('originalImage').src = img.src;
+    document.getElementById('originalSize').textContent = 
+      `(${originalWidth}x${originalHeight} • ${formatFileSize(file.size)})`;
+    
+    // Enable compression
+    compressImage(file);
+  };
+}
+
+function updateDimensions(e) {
+  if (!originalWidth) return;
+
+  // Maintain aspect ratio
+  if (e.target === widthInput) {
+    heightInput.value = Math.round(widthInput.value / aspectRatio);
+  } else {
+    widthInput.value = Math.round(heightInput.value * aspectRatio);
+  }
+
+  if (compressInput.files[0]) {
+    compressImage(compressInput.files[0]);
+  }
+}
+
+function resetToOriginalDimensions() {
+  widthInput.value = originalWidth;
+  heightInput.value = originalHeight;
+  if (compressInput.files[0]) {
+    compressImage(compressInput.files[0]);
+  }
+}
+
+async function compressImage(file) {
+  const quality = parseFloat(qualityRange.value);
+  const targetWidth = parseInt(widthInput.value);
+  const targetHeight = parseInt(heightInput.value);
+
+  const blob = await resizeAndCompressImage(file, targetWidth, targetHeight, quality);
+  
+  // Show compressed version
+  const compressedUrl = URL.createObjectURL(blob);
+  document.getElementById('compressedImage').src = compressedUrl;
+  document.getElementById('compressedSize').textContent = 
+    `(${targetWidth}x${targetHeight} • ${formatFileSize(blob.size)})`;
+  
+  compressedBlob = blob;
+  downloadBtn.disabled = false;
+}
+
+function resizeAndCompressImage(file, width, height, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw resized image
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Compress to JPEG
+      canvas.toBlob(
+        blob => resolve(blob),
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    img.onerror = reject;
+  });
+}
+
+function downloadCompressed() {
+  if (!compressedBlob) return;
+  const link = document.createElement('a');
+  link.download = `compressed_${widthInput.value}x${heightInput.value}_${Date.now()}.jpg`;
+  link.href = URL.createObjectURL(compressedBlob);
+  link.click();
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>

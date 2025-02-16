@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber AI PPT Tool</title>
+    <style>
+        @keyframes gradient-pulse {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0.8; }
+            50% { transform: translateY(-10px); opacity: 0.4; }
+            100% { transform: translateY(0); opacity: 0.8; }
+        }
+
+        .cyber-card {
+            position: relative;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.1);
+            animation: gradient-pulse 12s ease infinite;
+            background-size: 400% 400%;
+            box-shadow: 0 0 40px rgba(64, 100, 255, 0.2), 0 0 80px rgba(64, 100, 255, 0.1) inset;
+            text-align: center;
+        }
+
+        .cyber-card h3 {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 15px rgba(64, 224, 208, 0.8);
+            position: relative;
+            display: inline-block;
+        }
+
+        .cyber-card p {
+            color: #a9b7d0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .cyber-button {
+            background: linear-gradient(45deg, #40e0d0, #4b90ff, #40e0d0);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 20px rgba(64, 224, 208, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .cyber-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(64, 224, 208, 0.6);
+        }
+
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        .cyber-button:active {
+            transform: translateY(1px);
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(64, 224, 208, 0.6);
+            border-radius: 50%;
+            animation: float linear infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cyber-card">
+        <div class="particles" id="particles"></div>
+        <h3>AI PRESENTATION</h3>
+        <p>🚀 Generate stunning presentations with AI-powered design, dynamic templates, and real-time collaboration features!</p>
+        <button class="cyber-button" onclick="handleClick()">CREATE PPT</button>
+    </div>
+
+    <script>
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for(let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 5 + 3 + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        function handleClick() {
+            alert("🚀 AI PPT Maker is coming soon!");
+        }
+
+        createParticles();
+    </script>
+
+</body>
+</html>

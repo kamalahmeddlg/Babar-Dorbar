@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Background Remover</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #3498db;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 1rem;
+    }
+
+    label:hover {
+      background: #2980b9;
+    }
+
+    #preview {
+      max-width: 100%;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn {
+      padding: 12px 25px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+      transition: background 0.3s;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #c0392b;
+    }
+
+    footer {
+      margin-top: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      label, .btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+      }
+
+      #preview {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5em;
+      }
+
+      label, .btn {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+      }
+
+      #preview {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>AI Background Remover</h1>
+    <p>Upload an image, and we’ll remove the background for you.</p>
+    <label for="upload">Upload Photo</label>
+    <input type="file" id="upload" accept="image/*">
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="preview" alt="Preview">
+    <br>
+    <button id="remove-bg" class="btn" style="display:none;">Remove Background</button>
+    <button id="download" class="btn" style="display:none;">Download Image</button>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 AI Background Remover. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let uploadedImage;
+    const uploadInput = document.getElementById('upload');
+    const previewImage = document.getElementById('preview');
+    const canvas = document.getElementById('canvas');
+    const removeBgButton = document.getElementById('remove-bg');
+    const downloadButton = document.getElementById('download');
+
+    // Handle image upload
+    uploadInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          uploadedImage = new Image();
+          uploadedImage.src = e.target.result;
+          uploadedImage.onload = () => {
+            previewImage.src = uploadedImage.src;
+            previewImage.style.display = 'block';
+            removeBgButton.style.display = 'inline-block';
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Simulate background removal
+    removeBgButton.addEventListener('click', () => {
+      const ctx = canvas.getContext('2d');
+      canvas.width = uploadedImage.width;
+      canvas.height = uploadedImage.height;
+      ctx.drawImage(uploadedImage, 0, 0);
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const red = imageData.data[i];
+        const green = imageData.data[i + 1];
+        const blue = imageData.data[i + 2];
+        if (red > 200 && green > 200 && blue > 200) {
+          imageData.data[i + 3] = 0; // Set alpha to 0 (transparent)
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      previewImage.src = canvas.toDataURL('image/png');
+      downloadButton.style.display = 'inline-block';
+    });
+
+    // Download the processed image
+    downloadButton.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'background_removed.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+
+</body>
+</html>

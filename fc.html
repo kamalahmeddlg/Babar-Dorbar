@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div class="converter-card">
+    <div class="converter-header">
+      <h2>🔄 Ultimate File Converter</h2>
+      <p>Transform files between 20+ formats instantly</p>
+    </div>
+  
+    <div class="converter-body">
+      <!-- Drop Zone -->
+      <!-- Update the drop-zone structure -->
+<div class="drop-zone" id="dropZone">
+    <div class="drop-content">
+      <i class="upload-icon">📤</i>
+      <p>Drag & drop files here</p>
+      <span class="or">or</span>
+      <label class="browse-btn" for="fileInput">Browse Files</label>
+      <input type="file" id="fileInput" hidden>
+    </div>
+  </div>
+  
+      <!-- Conversion Panel -->
+      <div class="conversion-panel">
+        <div class="format-selector">
+          <div class="format-group">
+            <label>From:</label>
+            <div class="file-pill" id="sourceFormat">
+              <span class="file-ext">-</span>
+              <span class="file-name">No file selected</span>
+            </div>
+          </div>
+          
+          <div class="conversion-icon">➔</div>
+          
+          <div class="format-group">
+            <label>To:</label>
+            <div class="format-grid">
+              <button class="format-option" data-format="png">PNG</button>
+              <button class="format-option" data-format="jpg">JPG</button>
+              <button class="format-option" data-format="gif">GIF</button>
+              <button class="format-option" data-format="pdf">PDF</button>
+              <button class="format-option" data-format="docx">DOCX</button>
+              <button class="format-option" data-format="txt">TXT</button>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Settings -->
+        <div class="settings-panel">
+          <div class="setting-item">
+            <label>Quality <span id="qualityValue">85%</span></label>
+            <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.85">
+          </div>
+          
+          <div class="setting-item">
+            <label>Resize <span id="sizeValue">100%</span></label>
+            <input type="range" id="resize" min="0.1" max="2" step="0.1" value="1">
+          </div>
+        </div>
+  
+        <!-- Preview -->
+        <div class="preview-container">
+          <div class="preview-box" id="previewBox">
+            <img id="filePreview" alt="File preview">
+            <div class="file-info">
+              <span id="fileName">-</span>
+              <span id="fileSize">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Actions -->
+      <div class="action-buttons">
+        <button class="convert-btn" id="convertBtn" disabled>
+          <span class="btn-text">Start Conversion</span>
+          <div class="loader"></div>
+        </button>
+        <a class="download-btn" id="downloadBtn" hidden>
+          <span>Download</span>
+          <span class="file-format">.PNG</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+  :root {
+    --primary: #6366f1;
+    --success: #10b981;
+    --danger: #ef4444;
+    --background: #f8fafc;
+    --text: #1e293b;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+  }
+  
+  .converter-card {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 50%;
+    max-width: 800px;
+    overflow: visible;
+    
+  }
+  
+  .converter-header {
+    padding: 2rem;
+    background: var(--primary);
+    color: white;
+    text-align: center;
+  }
+  
+  .converter-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Update the CSS */
+  .drop-content {
+    text-align: center;
+    /* Remove pointer-events: none */
+  }
+  
+  .browse-btn {
+    /* Add these properties */
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+  }
+  .drop-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 1rem;
+    margin: 2rem;
+    padding: 3rem 1rem;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+  }
+  
+  .drop-zone.active {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+  }
+  
+  .drop-content {
+    text-align: center;
+    pointer-events: none;
+  }
+  
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .browse-btn {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    pointer-events: all;
+  }
+  
+  .browse-btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  .conversion-panel {
+    padding: 0 2rem 2rem;
+  }
+  
+  .format-selector {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .format-group {
+    flex: 1;
+  }
+  
+  .file-pill {
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .file-ext {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .format-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .format-option {
+    background: #f1f5f9;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .format-option:hover {
+    background: #e2e8f0;
+  }
+  
+  .format-option[data-selected] {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .settings-panel {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .setting-item {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    height: 6px;
+    margin-top: 0.5rem;
+    -webkit-appearance: none;
+    background: #e2e8f0;
+    border-radius: 999px;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .preview-container {
+    border: 2px solid #f1f5f9;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  
+  .preview-box {
+    position: relative;
+    padding-bottom: 56.25%;
+  }
+  
+  #filePreview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: white;
+  }
+  
+  .file-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+  }
+  
+  .convert-btn, .download-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .convert-btn {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .convert-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .download-btn {
+    background: var(--success);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .loader {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 640px) {
+    .converter-card {
+      border-radius: 1rem;
+    }
+    
+    .format-selector {
+      flex-direction: column;
+    }
+    
+    .conversion-icon {
+      transform: rotate(90deg);
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+  </style>
+  
+  <script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const convertBtn = document.getElementById('convertBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  let currentFile = null;
+  
+  // Drag & Drop Handlers
+  ['dragenter', 'dragover'].forEach(event => {
+    dropZone.addEventListener(event, (e) => {
+      e.preventDefault();
+      dropZone.classList.add('active');
+    });
+  });
+  
+  ['dragleave', 'drop'].forEach(event => {
+    dropZone.addEventListener(event, (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('active');
+    });
+  });
+  
+  dropZone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+  
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleFile(file);
+  });
+  
+  function handleFile(file) {
+    currentFile = file;
+    updateFileInfo(file);
+    convertBtn.disabled = false;
+  }
+  
+  function updateFileInfo(file) {
+    document.getElementById('sourceFormat').querySelector('.file-ext').textContent = 
+      file.name.split('.').pop().toUpperCase();
+    document.getElementById('sourceFormat').querySelector('.file-name').textContent = 
+      file.name;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+  
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('filePreview').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  document.querySelectorAll('.format-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.format-option').forEach(b => 
+        b.removeAttribute('data-selected'));
+      e.currentTarget.setAttribute('data-selected', '');
+    });
+  });
+  
+  convertBtn.addEventListener('click', async () => {
+    try {
+      convertBtn.disabled = true;
+      convertBtn.querySelector('.loader').style.display = 'block';
+      convertBtn.querySelector('.btn-text').textContent = 'Converting...';
+  
+      // Conversion logic here
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate conversion
+      
+      downloadBtn.hidden = false;
+      downloadBtn.querySelector('.file-format').textContent = 
+        `.${document.querySelector('[data-selected]').dataset.format.toUpperCase()}`;
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      convertBtn.disabled = false;
+      convertBtn.querySelector('.loader').style.display = 'none';
+      convertBtn.querySelector('.btn-text').textContent = 'Start Conversion';
+    }
+  });
+  // Update the convertBtn click handler
+convertBtn.addEventListener('click', async () => {
+  try {
+    convertBtn.disabled = true;
+    convertBtn.querySelector('.loader').style.display = 'block';
+    convertBtn.querySelector('.btn-text').textContent = 'Converting...';
+
+    // Create a dummy Blob for demonstration (replace with actual conversion)
+    const dummyContent = 'Converted file content'; // Replace with real converted data
+    const convertedBlob = new Blob([dummyContent], { type: 'application/octet-stream' });
+    
+    // Create object URL
+    const url = URL.createObjectURL(convertedBlob);
+    
+    // Update download button
+    downloadBtn.href = url;
+    downloadBtn.download = `converted.${document.querySelector('[data-selected]').dataset.format}`;
+    downloadBtn.hidden = false;
+
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  } finally {
+    convertBtn.disabled = false;
+    convertBtn.querySelector('.loader').style.display = 'none';
+    convertBtn.querySelector('.btn-text').textContent = 'Start Conversion';
+  }
+});
+  function formatFileSize(bytes) {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    
+    return `${size.toFixed(1)} ${units[unitIndex]}`;
+  }
+  
+  </script>
+</body>
+</html>

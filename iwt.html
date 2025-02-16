@@ -1,0 +1,373 @@
+<div class="watermark-card">
+    <div class="card-header">
+        <h3>🖼️ Image Watermarking</h3>
+        <div class="watermark-types">
+            <button class="type-btn active" data-type="text">Text</button>
+            <button class="type-btn" data-type="logo">Logo</button>
+            <button class="type-btn" data-type="invisible">Invisible</button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <label for="imageInput" class="upload-area" id="dropZone">
+            <div class="upload-content">
+                <svg class="upload-icon" viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                <p>Drag & drop or click to upload</p>
+                <span class="file-requirements">(JPG, PNG, WEBP up to 5MB)</span>
+            </div>
+            <div class="image-preview" id="previewContainer"></div>
+        </label>
+
+        <div class="controls">
+            <!-- Text Watermark Controls -->
+            <div class="control-group" id="textControls">
+                <input type="text" id="watermarkText" placeholder="Enter watermark text">
+                <div class="text-options">
+                    <input type="color" id="textColor" value="#ffffff">
+                    <input type="range" id="textOpacity" min="0.1" max="1" step="0.1" value="0.7">
+                    <select id="textFont">
+                        <option value="Arial">Arial</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Montserrat">Montserrat</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Logo Watermark Controls -->
+            <div class="control-group" id="logoControls" style="display: none;">
+                <input type="file" id="logoInput" accept="image/*" hidden>
+                <label for="logoInput" class="logo-upload">
+                    Upload Logo
+                </label>
+                <div class="logo-options">
+                    <input type="range" id="logoScale" min="0.1" max="1" step="0.1" value="0.5">
+                    <input type="range" id="logoOpacity" min="0.1" max="1" step="0.1" value="0.7">
+                </div>
+            </div>
+
+            <!-- Invisible Watermark Controls -->
+            <div class="control-group" id="invisibleControls" style="display: none;">
+                <input type="text" id="invisibleText" placeholder="Enter hidden message">
+                <div class="invisible-options">
+                    <label>
+                        <input type="checkbox" id="encryptToggle">
+                        Encrypt Message
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn" id="resetBtn">Reset</button>
+            <button class="action-btn primary" id="downloadBtn">Download</button>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading">
+        <div class="loader"></div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary: #2563eb;
+    --surface: #ffffff;
+    --background: #f8fafc;
+}
+
+.watermark-card {
+    background: var(--surface);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.card-header {
+    margin-bottom: 1.5rem;
+}
+
+.watermark-types {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.type-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background: var(--background);
+    cursor: pointer;
+}
+
+.type-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.upload-area {
+    display: block;
+    border: 2px dashed #cbd5e1;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-content {
+    pointer-events: none;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    fill: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.file-requirements {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.image-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.controls {
+    margin: 1.5rem 0;
+}
+
+.control-group {
+    display: grid;
+    gap: 1rem;
+}
+
+.text-options, .logo-options, .invisible-options {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+}
+
+.action-btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+const imageInput = document.getElementById('imageInput');
+const previewContainer = document.getElementById('previewContainer');
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+let originalImage;
+let watermarkType = 'text';
+
+// Initialize watermark type selection
+document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        watermarkType = btn.dataset.type;
+        updateControls();
+    });
+});
+
+function updateControls() {
+    document.querySelectorAll('.control-group').forEach(group => group.style.display = 'none');
+    document.getElementById(`${watermarkType}Controls`).style.display = 'grid';
+}
+
+// Handle image upload
+imageInput.addEventListener('change', handleImageUpload);
+
+function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            originalImage = img;
+            showPreview();
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function showPreview() {
+    const img = new Image();
+    img.src = canvas.toDataURL();
+    previewContainer.innerHTML = '';
+    previewContainer.appendChild(img);
+    previewContainer.style.display = 'block';
+}
+
+// Handle watermark application
+function applyWatermark() {
+    if (!originalImage) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(originalImage, 0, 0);
+
+    switch (watermarkType) {
+        case 'text':
+            applyTextWatermark();
+            break;
+        case 'logo':
+            applyLogoWatermark();
+            break;
+        case 'invisible':
+            applyInvisibleWatermark();
+            break;
+    }
+
+    showPreview();
+}
+
+function applyTextWatermark() {
+    const text = document.getElementById('watermarkText').value;
+    const color = document.getElementById('textColor').value;
+    const opacity = document.getElementById('textOpacity').value;
+    const font = document.getElementById('textFont').value;
+
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.font = `100px ${font}`;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvas.width/2, canvas.height/2);
+    ctx.restore();
+}
+
+function applyLogoWatermark() {
+    const logoInput = document.getElementById('logoInput');
+    if (!logoInput.files[0]) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const logo = new Image();
+        logo.onload = function() {
+            const scale = document.getElementById('logoScale').value;
+            const opacity = document.getElementById('logoOpacity').value;
+
+            const width = logo.width * scale;
+            const height = logo.height * scale;
+
+            ctx.save();
+            ctx.globalAlpha = opacity;
+            ctx.drawImage(
+                logo,
+                canvas.width - width - 20,
+                canvas.height - height - 20,
+                width,
+                height
+            );
+            ctx.restore();
+            showPreview();
+        };
+        logo.src = event.target.result;
+    };
+    reader.readAsDataURL(logoInput.files[0]);
+}
+
+function applyInvisibleWatermark() {
+    const message = document.getElementById('invisibleText').value;
+    if (!message) return;
+
+    // Convert message to binary
+    const binaryMessage = message.split('')
+        .map(char => char.charCodeAt(0).toString(2).padStart(8, '0'))
+        .join('');
+
+    // Apply LSB steganography
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < binaryMessage.length; i++) {
+        const bit = binaryMessage[i];
+        const pixelIndex = i * 4;
+        data[pixelIndex] = (data[pixelIndex] & 0xFE) | parseInt(bit);
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+
+// Handle download
+document.getElementById('downloadBtn').addEventListener('click', () => {
+    applyWatermark();
+    const link = document.createElement('a');
+    link.download = `watermarked-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+});
+
+// Reset functionality
+document.getElementById('resetBtn').addEventListener('click', () => {
+    if (originalImage) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(originalImage, 0, 0);
+        showPreview();
+    }
+});
+</script>

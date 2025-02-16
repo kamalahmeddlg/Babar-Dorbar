@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age & Birthday Calculator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+        }
+
+        .calculator h2 {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+        }
+
+        .btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #e64a19;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .birthday-message {
+            color: #ffeb3b;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <h2>Age Calculator</h2>
+        <input type="date" id="dob">
+        <button class="btn" onclick="calculateAge()">Calculate</button>
+        <p class="result" id="age-result"></p>
+        <p class="result" id="birthday-result"></p>
+        <p class="birthday-message" id="happy-birthday-message">🎉 Advance Happy Birthday! 🎂</p>
+    </div>
+
+    <script>
+        function calculateAge() {
+            let dob = document.getElementById('dob').value;
+            if (!dob) {
+                document.getElementById('age-result').innerText = "Please enter your date of birth!";
+                return;
+            }
+
+            let birthDate = new Date(dob);
+            let today = new Date();
+
+            let ageYears = today.getFullYear() - birthDate.getFullYear();
+            let ageMonths = today.getMonth() - birthDate.getMonth();
+            let ageDays = today.getDate() - birthDate.getDate();
+
+            if (ageDays < 0) {
+                ageMonths--;
+                let lastMonth = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+                ageDays += lastMonth;
+            }
+            if (ageMonths < 0) {
+                ageYears--;
+                ageMonths += 12;
+            }
+
+            document.getElementById('age-result').innerText = `Your Age: ${ageYears} years, ${ageMonths} months, ${ageDays} days`;
+
+            // Calculate next birthday
+            let nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(today.getFullYear() + 1);
+            }
+            let timeDiff = nextBirthday.getTime() - today.getTime();
+            let daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            document.getElementById('birthday-result').innerText = `🎉 Your Next Birthday is in ${daysLeft} days!`;
+
+            // Show advance Happy Birthday message if less than 7 days
+            let birthdayMessage = document.getElementById('happy-birthday-message');
+            if (daysLeft <= 7) {
+                birthdayMessage.style.display = "block";
+            } else {
+                birthdayMessage.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>

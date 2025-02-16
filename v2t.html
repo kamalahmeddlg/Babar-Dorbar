@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice-to-Text Converter</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #10b981;
+      --error: #ef4444;
+      --background: #f8fafc;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: var(--background);
+      padding: 20px;
+    }
+    .voice-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 2rem auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .mic-icon {
+      width: 32px;
+      height: 32px;
+      fill: var(--primary);
+    }
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #94a3b8;
+      margin-left: auto;
+    }
+    .status-indicator.active {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+    }
+    .transcript-container {
+      min-height: 150px;
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f1f5f9;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      line-height: 1.6;
+    }
+    .placeholder {
+      color: #64748b;
+      font-style: italic;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .record-btn, .clear-btn, .download-btn, .copy-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+    .record-btn {
+      background: var(--primary);
+      color: white;
+    }
+    .clear-btn {
+      background: #f59e0b;
+      color: white;
+    }
+    .download-btn {
+      background: #10b981;
+      color: white;
+    }
+    .copy-btn {
+      background: #e2e8f0;
+      color: #333;
+    }
+    .copy-btn:hover {
+      background: #cbd5e1;
+    }
+    .error-message {
+      color: var(--error);
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="voice-card">
+  <div class="card-header">
+    <svg class="mic-icon" viewBox="0 0 24 24">
+      <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm5 9a1 1 0 0 0-2 0 3 3 0 1 0 6 0h3a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 12 23 7 7 0 0 1 5 12H4a1 1 0 0 1 0-2h3a1 1 0 0 0 0-2H5a5 5 0 0 0 10 0h-2a1 1 0 1 0 0 2h3a1 1 0 0 1 0 2h-1a5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.93V19H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-1.07A7 7 0 0 0 19 12h-2z"/>
+    </svg>
+    <h3>Voice-to-Text Converter</h3>
+    <div class="status-indicator" id="status"></div>
+  </div>
+  
+  <div class="transcript-container" id="transcript">
+    <div class="placeholder">Click start to begin recording...</div>
+  </div>
+
+  <div class="controls">
+    <button class="record-btn" id="recordBtn">Start Recording</button>
+    <button class="clear-btn" id="clearBtn">Clear Transcript</button>
+    <button class="download-btn" id="downloadBtn">Download Transcript</button>
+    <button class="copy-btn" id="copyBtn">📋 Copy</button>
+  </div>
+
+  <div class="error-message" id="error"></div>
+</div>
+
+<script>
+const recordBtn = document.getElementById('recordBtn');
+const transcriptDiv = document.getElementById('transcript');
+const errorDiv = document.getElementById('error');
+const clearBtn = document.getElementById('clearBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const copyBtn = document.getElementById('copyBtn');
+let recognition;
+let isRecording = false;
+
+// Initialize Speech Recognition
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  
+  if (!SpeechRecognition) {
+    showError('Speech recognition not supported in this browser');
+    recordBtn.disabled = true;
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    updateUI();
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join('');
+    transcriptDiv.innerText = transcript || 'Start speaking...';
+  };
+
+  recognition.onerror = (event) => {
+    showError(`Error: ${event.error}`);
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    updateUI();
+  };
+}
+
+recordBtn.addEventListener('click', () => {
+  if (!isRecording) {
+    startRecording();
+  } else {
+    stopRecording();
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  transcriptDiv.innerHTML = '<div class="placeholder">Click start to begin recording...</div>';
+});
+
+downloadBtn.addEventListener('click', () => {
+  const text = transcriptDiv.innerText;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'transcript.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+copyBtn.addEventListener('click', () => {
+  const text = transcriptDiv.innerText;
+  navigator.clipboard.writeText(text)
+    .then(() => alert('Copied to clipboard!'))
+    .catch(() => showError('Failed to copy text'));
+});
+
+function startRecording() {
+  if (!recognition) initSpeechRecognition();
+  recognition.start();
+  document.getElementById('status').classList.add('active');
+}
+
+function stopRecording() {
+  recognition.stop();
+  document.getElementById('status').classList.remove('active');
+}
+
+function updateUI() {
+  recordBtn.textContent = isRecording ? 'Stop Recording' : 'Start Recording';
+}
+
+function showError(message) {
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  setTimeout(() => errorDiv.style.display = 'none', 5000);
+}
+
+initSpeechRecognition();
+</script>
+
+</body>
+</html>
